@@ -1,0 +1,23 @@
+# Synthetic geochronology for the age-bracketing demo. NOT REAL DATA.
+#
+# category   older_limiting  : dates material BELOW the bed -> the event is YOUNGER than this
+#                              (a "maximum-limiting" age: the event is at most this old)
+#            event           : dates the bed of interest ITSELF
+#            younger_limiting: dates material ABOVE the bed -> the event is OLDER than this
+#                              (a "minimum-limiting" age: the event is at least this old)
+#
+# method     14C : age_yr is a conventional radiocarbon age (14C yr BP); error_1s_yr is the
+#                  laboratory 1-sigma. Calibrated here against IntCal20.
+#            OSL : age_yr is already a calendar age (yr before AD 1950 in this demo; see
+#                  README on the datum caveat); error_1s_yr is the total 1-sigma.
+#
+# Target calendar ages: older limiting ~13 ka, event ~12 ka, younger limiting ~10 ka.
+lab_id,category,method,age_yr,error_1s_yr,material_or_unit
+DEMO-C14-O1,older_limiting,14C,11040,55,wood in sand below the bed
+DEMO-C14-O2,older_limiting,14C,11230,60,wood in sand below the bed
+DEMO-C14-O3,older_limiting,14C,11510,70,peat below the bed
+DEMO-OSL-E1,event,OSL,11850,850,quartz OSL from the bed of interest
+DEMO-OSL-E2,event,OSL,12250,950,quartz OSL from the bed of interest
+DEMO-C14-Y1,younger_limiting,14C,8795,40,charcoal in overlying soil
+DEMO-C14-Y2,younger_limiting,14C,8920,45,charcoal in overlying soil
+DEMO-C14-Y3,younger_limiting,14C,9150,50,plant macrofossil in overlying silt
