@@ -1,0 +1,5 @@
+numpy
+scipy
+pandas
+matplotlib
+iosacal          # IntCal20 radiocarbon calibration; ships the curve files
