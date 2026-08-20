@@ -12,8 +12,8 @@ authors:
     orcid: "https://orcid.org/0000-0002-9545-3365"
 abstract: >-
   Combines the three kinds of geochronological constraint on a stratigraphic
-  event — dates below the bed, which bound it as younger; dates above, which
-  bound it as older; and dates on the bed itself — into a single Bayesian
+  event – dates below the bed, which bound it as younger; dates above, which
+  bound it as older; and dates on the bed itself – into a single Bayesian
   posterior. Limiting dates enter as survival and cumulative functions and
   dates on the bed as likelihoods, so the result is a product rather than a
   summed probability density. Radiocarbon ages are calibrated against IntCal20

@@ -203,7 +203,7 @@ calendar ages; no real sample is described here.
 Claude is **not** listed as an author, in `CITATION.cff` or anywhere else. An AI
 system cannot take responsibility for the work, cannot declare conflicts of
 interest, and is not a legal entity that can hold copyright or agree to a
-licence — the reasoning given by COPE, the ICMJE, and AGU, all of which prohibit
+licence – the reasoning given by COPE, the ICMJE, and AGU, all of which prohibit
 AI authorship. Responsibility for everything here, including the parts a machine
 produced, rests with the human author.
 
