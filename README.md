@@ -154,6 +154,33 @@ python test_agedist.py          # checks; also runs under pytest
 | `synthetic_ages.csv` | the eight synthetic dates. Edit this to try other geometries. |
 | `age_brackets.png` / `.pdf` | the output. |
 
+## Reading the code
+
+If you are fairly new to Python or numpy, read it in this order. Nothing here
+uses classes, decorators, or any library beyond numpy, scipy, pandas and
+matplotlib.
+
+1. **`synthetic_ages.csv`** – eight rows. Everything downstream comes from this.
+2. **`agedist.py`, top to bottom.** It is written in the order the work happens:
+   turn one date into a probability density (`gaussian_pdf`, `calibrate_14c`),
+   add up probability (`normalise`, `cumulative`), load the whole table
+   (`load_dates`), then combine (`constraint_older`, `constraint_younger`,
+   `combined_likelihood`, `joint_posterior`), then summarise (`hpd_intervals`,
+   `quantiles`, `summarise`).
+3. **`test_agedist.py`.** Short, and each test states a fact about the code that
+   must be true. `python test_agedist.py` runs them without installing anything.
+4. **`plot_age_brackets.py` last**, because it is the longest file and it is all
+   drawing. Each panel is one function; `build_figure` calls the four in order.
+
+Two ideas do most of the work, and both are worth pausing on:
+
+- **Everything lives on one shared array of ages, `GRID`.** Once every date is a
+  density on the same grid, comparing or combining dates is ordinary
+  element-by-element arithmetic. Most of this code is multiplying arrays.
+- **A boolean mask.** `mask = mass >= cutoff` gives an array of True/False, and
+  `grid[mask]` then keeps only the entries where it was True. That one idiom
+  appears in `hpd_intervals` and in the figure's `_support`.
+
 ## Trying your own numbers
 
 Edit `synthetic_ages.csv`. `method` is `14C` (age in conventional ¹⁴C yr BP,
