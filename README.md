@@ -158,8 +158,10 @@ python test_agedist.py          # checks; also runs under pytest
 
 Edit `synthetic_ages.csv`. `method` is `14C` (age in conventional ¹⁴C yr BP,
 error the laboratory 1σ) or `OSL` (age and 1σ already in calendar years).
-`category` is one of the three above. Nothing else needs to change — the panels,
-the constraint products, and the axis range all follow from the table.
+`category` is one of the three above. The panels and the constraint products
+follow from the table. The plotted age range does **not**: it is set by
+`AGE_TOP, AGE_BOTTOM` at the top of `plot_age_brackets.py`, so widen it there if
+your dates fall outside 9–14.9 ka.
 
 ## License
 
