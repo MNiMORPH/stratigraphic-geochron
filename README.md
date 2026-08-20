@@ -36,15 +36,15 @@ The ¹⁴C determinations were chosen by reading IntCal20 backwards from the tar
 calendar ages, so their calibrated distributions really do land where intended —
 and really do carry the skew and multi-modality the calibration curve imposes.
 
-**One assumption, stated because the brief was ambiguous.** The request specified
-"10, 12, and 13 ka" for the maximum-limiting, minimum-limiting, and OSL ages
-respectively. Read strictly, that puts the maximum-limiting (older) dates at 10 ka
-and the minimum-limiting (younger) dates at 12 ka, which inverts the
-stratigraphy — a date beneath the bed cannot be younger than one above it. The
-numbers are therefore assigned the only way that is geologically coherent:
-**13 ka below, 12 ka for the bed, 10 ka above**. If the inverted arrangement was
-in fact intended, swap the `category` values in the CSV and rerun. The code
-detects it and refuses, by name:
+**Which number goes where is fixed by the stratigraphy, not by the naming.** A
+*maximum-limiting* age is the older one — it sits below the bed and caps how old
+the event can be — and a *minimum-limiting* age is the younger one, above. The
+two names are easy to swap by accident, and swapping them here would put the
+older dates above the younger ones. Hence 13 ka below, 12 ka for the bed, 10 ka
+above, and hence the direction-first category names in the table earlier.
+
+Swap the `category` values in the CSV and rerun to see what an inverted bracket
+does. The code detects it and refuses, by name:
 
 ```
 ValueError: the limiting ages leave no permitted age for the event: the material
@@ -54,10 +54,10 @@ dates and the stratigraphy genuinely disagree.
 ```
 
 That is the correct answer to an inverted bracket under this model: no age
-satisfies both bounds, so the posterior has no mass anywhere. An inverted bracket
-is a real and interesting situation — it is what the Bagley OSL ages do in the
-Savanna Terrace chronology next door — but it needs a model that admits the
-stratigraphic assignment might be wrong, not a product of hard constraints.
+satisfies both bounds, so the posterior has no mass anywhere. Real inverted
+brackets do happen, and they are informative when they do — but reading one needs
+a model that admits the stratigraphic assignment or a date might be wrong, rather
+than a product of hard constraints that can only return "impossible".
 
 ## What gets computed
 
