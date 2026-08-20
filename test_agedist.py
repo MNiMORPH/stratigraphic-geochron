@@ -133,6 +133,26 @@ def test_posterior_is_inside_the_bracket_and_no_wider_than_the_event_dates():
     assert (hi - lo) <= (ev95[-1][1] - ev95[0][0]) + 1e-9, "constraints widened the answer"
 
 
+def test_a_non_default_grid_works_end_to_end():
+    """Every function takes grid=, so passing one must actually be honoured.
+
+    The constraint builders once read the module-level GRID regardless, so any
+    caller who supplied their own grid got a broadcast error out of the middle of
+    joint_posterior. The signature has to mean what it says.
+    """
+    coarse = np.arange(5000, 20001, 5, dtype=float)
+    df = ad.load_dates("synthetic_ages.csv", grid=coarse)
+    J = ad.joint_posterior(df, grid=coarse)
+
+    for key in ("s_older", "f_younger", "bracket", "event_only", "posterior"):
+        assert len(J[key]) == len(coarse), f"{key} is not on the supplied grid"
+
+    # And it must find the same answer as the 1-yr grid, to within its resolution.
+    fine = ad.joint_posterior(ad.load_dates("synthetic_ages.csv"))
+    assert abs(coarse[np.argmax(J["posterior"])]
+               - ad.GRID[np.argmax(fine["posterior"])]) <= 5
+
+
 def test_inverted_bracket_is_refused_by_name():
     """Swapping above and below leaves no permitted age; say so, don't divide by zero."""
     df = ad.load_dates("synthetic_ages.csv")

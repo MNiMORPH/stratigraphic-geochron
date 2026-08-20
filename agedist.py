@@ -149,25 +149,25 @@ def cumulative(pdf, grid=GRID):
 
 
 # ── 2. Constraint functions and the joint posterior ──────────────────────────
-def constraint_older(cdfs):
+def constraint_older(cdfs, grid=GRID):
     """P(event age < each limiting date), for dates BELOW the bed.
 
     Product of S_i(theta) = 1 - CDF_i(theta). Goes 1 -> 0 with increasing age:
     the event cannot be older than the material beneath it.
     """
-    out = np.ones_like(GRID)
+    out = np.ones_like(grid)
     for cdf in cdfs:
         out = out * (1.0 - cdf)
     return out
 
 
-def constraint_younger(cdfs):
+def constraint_younger(cdfs, grid=GRID):
     """P(event age > each limiting date), for dates ABOVE the bed.
 
     Product of F_j(theta) = CDF_j(theta). Goes 0 -> 1 with increasing age:
     the event cannot be younger than the material above it.
     """
-    out = np.ones_like(GRID)
+    out = np.ones_like(grid)
     for cdf in cdfs:
         out = out * cdf
     return out
@@ -203,8 +203,8 @@ def joint_posterior(df, grid=GRID):
     """
     by = {c: df[df["category"] == c] for c in CATEGORIES}
 
-    s_older = constraint_older(list(by["older_limiting"]["cdf"]))
-    f_younger = constraint_younger(list(by["younger_limiting"]["cdf"]))
+    s_older = constraint_older(list(by["older_limiting"]["cdf"]), grid)
+    f_younger = constraint_younger(list(by["younger_limiting"]["cdf"]), grid)
     constraint = s_older * f_younger
 
     # An inverted bracket — something below the bed dating younger than something
