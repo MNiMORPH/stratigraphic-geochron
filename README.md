@@ -192,6 +192,34 @@ follow from the table. The plotted age range does **not**: it is set by
 `AGE_TOP, AGE_BOTTOM` at the top of `plot_age_brackets.py`, so widen it there if
 your dates fall outside 9–14.9 ka.
 
+## AI usage disclosure
+
+Nearly all of the code, tests, documentation and figure design in this
+repository were written by Anthropic's Claude (Opus 5) in an interactive
+session, working to the author's specification and under his review. The
+synthetic dataset was constructed by reverse-reading IntCal20 from target
+calendar ages; no real sample is described here.
+
+Claude is **not** listed as an author, in `CITATION.cff` or anywhere else. An AI
+system cannot take responsibility for the work, cannot declare conflicts of
+interest, and is not a legal entity that can hold copyright or agree to a
+licence — the reasoning given by COPE, the ICMJE, and AGU, all of which prohibit
+AI authorship. Responsibility for everything here, including the parts a machine
+produced, rests with the human author.
+
+This section follows the disclosure model used by the Journal of Open Source
+Software, currently the only worked-out convention for declaring AI assistance
+in research software. The Citation File Format has no mechanism for recording a
+non-human contributor.
+
 ## License
 
 GNU General Public License v3 – see [LICENSE](LICENSE).
+
+Note that the US Copyright Office holds that purely AI-generated material, or
+material over which a human exercised insufficient creative control, is not
+copyrightable, and that prompting alone does not supply that control
+(*Copyright and Artificial Intelligence, Part 2: Copyrightability*, January
+2025). Because the GPL operates through copyright, its copyleft reaches only the
+human-authored expression in this repository. Given how this code was produced,
+treat the licence as covering that portion; the determination is case-by-case.
