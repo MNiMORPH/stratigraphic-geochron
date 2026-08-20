@@ -71,13 +71,6 @@ GRID = np.arange(5000, 20001, 1, dtype=float)   # cal yr BP
 
 CATEGORIES = ("older_limiting", "event", "younger_limiting")
 
-# Direction each category constrains the event age, for display and for asserts.
-CATEGORY_MEANING = {
-    "older_limiting":   "below the bed — the event is YOUNGER than this (maximum-limiting)",
-    "event":            "the bed itself — this dates the event",
-    "younger_limiting": "above the bed — the event is OLDER than this (minimum-limiting)",
-}
-
 
 # ── 1. Individual date -> density on GRID ────────────────────────────────────
 def gaussian_pdf(mu, sigma, grid=GRID):
@@ -231,7 +224,6 @@ def joint_posterior(df, grid=GRID):
         "f_younger": f_younger,
         "bracket": _normalise(constraint, grid),
         "event_only": _normalise(event_only, grid),
-        "event_spd": summed_density(event_pdfs, grid) if len(event_pdfs) else None,
         "posterior": _normalise(constraint * event_only, grid),
     }
 
