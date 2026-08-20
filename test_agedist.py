@@ -5,11 +5,13 @@ Run either way:
     python test_agedist.py        # plain asserts, no test runner needed
     pytest test_agedist.py
 
-The tests that matter most are the last two. Everything else here is arithmetic
-hygiene; those two check the DIRECTION of the limiting-age constraints, which is
-the one thing in this code that is easy to get backwards and impossible to spot
-by eye once it is wrong — a sign flip still produces a smooth, plausible-looking
-posterior, just centred on the wrong side of the bracket.
+The two that matter most are test_older_limiting_date_cuts_the_OLD_tail and
+test_younger_limiting_date_cuts_the_YOUNG_tail. Everything else here is
+arithmetic hygiene; those two check the DIRECTION of the limiting-age
+constraints, which is the one thing in this code that is easy to get backwards
+and impossible to spot by eye once it is wrong — a sign flip still produces a
+smooth, plausible-looking posterior, just centred on the wrong side of the
+bracket.
 """
 
 import numpy as np
@@ -91,7 +93,7 @@ def test_older_limiting_date_cuts_the_OLD_tail():
 
     # Applied to a broad likelihood, the posterior must move YOUNGER, not older.
     like = ad.gaussian_pdf(12500, 1200)
-    post = ad._normalise(like * s)
+    post = ad.normalise(like * s)
     assert ad.quantiles(post, (0.5,))[0] < ad.quantiles(like, (0.5,))[0]
 
 
@@ -105,7 +107,7 @@ def test_younger_limiting_date_cuts_the_YOUNG_tail():
     assert f[ad.GRID > cutoff + 200].min() > 0.999, "old ages must stay permitted"
 
     like = ad.gaussian_pdf(10500, 1200)
-    post = ad._normalise(like * f)
+    post = ad.normalise(like * f)
     assert ad.quantiles(post, (0.5,))[0] > ad.quantiles(like, (0.5,))[0]
 
 

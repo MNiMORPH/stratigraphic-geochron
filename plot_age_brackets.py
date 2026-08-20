@@ -208,10 +208,11 @@ def panel_joint(ax, J, ka):
     posterior = J["posterior"] * PER_KA
 
     ax.plot(bracket, ka, color=INK_2, lw=1.3, ls=(0, (5, 2.5)))
-    ax.plot(event_only[_support(event_only)], ka[_support(event_only)],
+    m_event, m_post = _support(event_only), _support(posterior)
+    ax.plot(event_only[m_event], ka[m_event],
             color=COLOR["event"], lw=1.7, ls=(0, (1.2, 1.6)))
     ax.fill_betweenx(ka, 0, posterior, facecolor=INK, alpha=0.12, lw=0)
-    ax.plot(posterior[_support(posterior)], ka[_support(posterior)], color=INK, lw=2.2)
+    ax.plot(posterior[m_post], ka[m_post], color=INK, lw=2.2)
 
     # The answer, as HPD bars against the axis.
     for level, alpha in ((0.954, 0.18), (0.683, 0.38)):

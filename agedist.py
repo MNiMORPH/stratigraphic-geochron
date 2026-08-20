@@ -75,7 +75,7 @@ CATEGORIES = ("older_limiting", "event", "younger_limiting")
 # ── 1. Individual date -> density on GRID ────────────────────────────────────
 def gaussian_pdf(mu, sigma, grid=GRID):
     """Density of a Gaussian age estimate (OSL, 10Be, ...) on the grid."""
-    return _normalise(norm.pdf(grid, loc=mu, scale=sigma), grid)
+    return normalise(norm.pdf(grid, loc=mu, scale=sigma), grid)
 
 
 def calibrate_14c(age_14c, error_14c, curve="intcal20", grid=GRID, label=""):
@@ -95,16 +95,22 @@ def calibrate_14c(age_14c, error_14c, curve="intcal20", grid=GRID, label=""):
             f"calibrated range {years.min():.0f}-{years.max():.0f} cal BP for "
             f"{label or age_14c} falls outside GRID; widen GRID."
         )
-    return _normalise(np.interp(grid, years, dens, left=0.0, right=0.0), grid)
+    return normalise(np.interp(grid, years, dens, left=0.0, right=0.0), grid)
 
 
-def _normalise(density, grid=GRID):
+def normalise(density, grid=GRID):
     """Scale a density to unit integral over the grid."""
     density = np.asarray(density, dtype=float)
     integral = _trapz(density, grid)
     if integral <= 0:
         raise ValueError("density integrates to zero; nothing to normalise")
     return density / integral
+
+
+def cumulative(pdf, grid=GRID):
+    """CDF of a density on the grid, increasing with age. cdf[0]=0, cdf[-1]=1."""
+    cdf = np.concatenate([[0.0], np.cumsum(0.5 * (pdf[1:] + pdf[:-1]) * np.diff(grid))])
+    return cdf / cdf[-1]
 
 
 def load_dates(csv_path, grid=GRID):
@@ -133,12 +139,6 @@ def load_dates(csv_path, grid=GRID):
     df["pdf"] = pdfs
     df["cdf"] = cdfs
     return df
-
-
-def cumulative(pdf, grid=GRID):
-    """CDF of a density on the grid, increasing with age. cdf[0]=0, cdf[-1]=1."""
-    cdf = np.concatenate([[0.0], np.cumsum(0.5 * (pdf[1:] + pdf[:-1]) * np.diff(grid))])
-    return cdf / cdf[-1]
 
 
 # ── 2. Constraint functions and the joint posterior ──────────────────────────
@@ -175,12 +175,12 @@ def combined_likelihood(pdfs, grid=GRID):
     out = np.ones_like(grid)
     for pdf in pdfs:
         out = out * pdf
-    return _normalise(out, grid)
+    return normalise(out, grid)
 
 
 def summed_density(pdfs, grid=GRID):
     """SPD: the mean of a set of densities. Pools dates WITHOUT assuming one age."""
-    return _normalise(np.sum(np.asarray(pdfs), axis=0), grid)
+    return normalise(np.sum(np.asarray(pdfs), axis=0), grid)
 
 
 def joint_posterior(df, grid=GRID):
@@ -222,9 +222,9 @@ def joint_posterior(df, grid=GRID):
         "grid": grid,
         "s_older": s_older,
         "f_younger": f_younger,
-        "bracket": _normalise(constraint, grid),
-        "event_only": _normalise(event_only, grid),
-        "posterior": _normalise(constraint * event_only, grid),
+        "bracket": normalise(constraint, grid),
+        "event_only": normalise(event_only, grid),
+        "posterior": normalise(constraint * event_only, grid),
     }
 
 
@@ -243,9 +243,11 @@ def hpd_intervals(pdf, level=0.954, grid=GRID):
     """
     mass = pdf * np.gradient(grid)
     order = np.argsort(mass)[::-1]
-    cum = np.cumsum(mass[order])
-    reached = np.flatnonzero(cum >= level * mass.sum())
-    cutoff = mass[order][reached[0] if reached.size else -1]
+    ranked = mass[order]
+    reached = np.flatnonzero(np.cumsum(ranked) >= level * mass.sum())
+    # If rounding keeps the cumulative sum just under `level`, take the whole
+    # distribution rather than silently returning an empty region.
+    cutoff = ranked[reached[0]] if reached.size else ranked[-1]
     keep = mass >= cutoff
 
     edges = np.flatnonzero(np.diff(np.r_[False, keep, False]))
