@@ -160,3 +160,7 @@ Edit `synthetic_ages.csv`. `method` is `14C` (age in conventional ¹⁴C yr BP,
 error the laboratory 1σ) or `OSL` (age and 1σ already in calendar years).
 `category` is one of the three above. Nothing else needs to change — the panels,
 the constraint products, and the axis range all follow from the table.
+
+## License
+
+GNU General Public License v3 – see [LICENSE](LICENSE).
