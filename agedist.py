@@ -204,6 +204,7 @@ def joint_posterior(df, grid=GRID):
     """Full Bayesian posterior for the event age, plus the pieces that build it.
 
     Returns a dict of densities/curves on `grid`:
+      grid         the age axis everything below is evaluated on
       s_older      product of S_i  – the older-limiting constraint (0-1)
       f_younger    product of F_j  – the younger-limiting constraint (0-1)
       bracket      s_older * f_younger, normalised: the answer from the limiting
