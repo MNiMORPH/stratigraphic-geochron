@@ -1,5 +1,5 @@
 """
-plot_age_brackets.py — bracketing the age of a bed, with time down the page.
+plot_age_brackets.py – bracketing the age of a bed, with time down the page.
 
 Four panels on one shared vertical age axis, young at the top and old at the
 bottom, so the figure reads like a core: material above the bed plots above it,
@@ -8,12 +8,12 @@ material below plots below.
   A  Every date on its own, as the full probability density the method actually
      gives (calibrated 14C is lumpy; OSL is Gaussian). Arrows show which way each
      limiting date pushes the event age.
-  B  Summed probability density per category — the union of the evidence, making
+  B  Summed probability density per category – the union of the evidence, making
      no assumption that the dates share an age.
   C  The limiting-age constraint functions: the probability, as a function of
      candidate event age, that the event is younger than everything beneath it
      and older than everything above it.
-  D  The joint posterior — panel C's constraint times the OSL likelihood — against
+  D  The joint posterior – panel C's constraint times the OSL likelihood – against
      the two things it is built from.
 
 Run:  python plot_age_brackets.py
@@ -80,7 +80,7 @@ def _support(pdf, frac=0.01):
 
     Without this the outline of a sideways violin collapses onto the slot centre
     wherever the density is negligible, and every date grows a full-height
-    hairline. The default cuts at 1% of peak — for a Gaussian, about +/-3 sigma.
+    hairline. The default cuts at 1% of peak – for a Gaussian, about +/-3 sigma.
     """
     return pdf >= frac * pdf.max()
 
@@ -90,7 +90,7 @@ def panel_dates(ax, df, ka):
 
     Each density is scaled to the same peak width so that every date is legible.
     That costs nothing in honesty here: the axis that carries precision is the
-    VERTICAL one, and it is shared — a tight 14C date is a thin band, a 7% OSL
+    VERTICAL one, and it is shared – a tight 14C date is a thin band, a 7% OSL
     age is a fat one, at a glance.
     """
     half = 0.40
@@ -132,7 +132,7 @@ def panel_dates(ax, df, ka):
                  fontweight="bold", pad=10)
 
     # Direct labels: a colour bar grouping each category's slots, named beneath
-    # the lab IDs it covers — the grouping belongs with the names, and it keeps
+    # the lab IDs it covers – the grouping belongs with the names, and it keeps
     # the space above the axes free for the panel titles.
     tf = ax.get_xaxis_transform()   # x in data units, y in axes fraction
     for cat, grp in df.groupby("category", sort=False):
@@ -176,7 +176,7 @@ def panel_constraints(ax, J, ka):
     """P(event is younger than everything below) and P(older than everything above).
 
     Each curve is a product of survival/cumulative functions, so it is a
-    probability on [0, 1], not a density — which is why it gets its own panel
+    probability on [0, 1], not a density – which is why it gets its own panel
     instead of being forced onto a density axis.
     """
     both = J["s_older"] * J["f_younger"]
@@ -263,7 +263,7 @@ def build_figure(csv_path=DATA_CSV, out_stem=OUT_STEM):
         ax.tick_params(labelsize=9)
 
     fig.suptitle(
-        "Bracketing the age of a bed — synthetic demonstration data",
+        "Bracketing the age of a bed – synthetic demonstration data",
         x=0.007, ha="left", fontsize=14.5, fontweight="bold", y=0.99)
     fig.text(
         0.007, 0.960,

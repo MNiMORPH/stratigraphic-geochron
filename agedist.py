@@ -1,5 +1,5 @@
 """
-agedist.py — age distributions and the joint posterior for a bracketed event.
+agedist.py – age distributions and the joint posterior for a bracketed event.
 
 Every date in a bracketing problem does one of three jobs:
 
@@ -14,7 +14,7 @@ Every date in a bracketing problem does one of three jobs:
 Ages live on one common 1-year calendar grid (cal yr BP, increasing = older).
 Each date becomes a probability density on that grid:
 
-  14C   calibrated against IntCal20 (via iosacal). Genuinely non-Gaussian —
+  14C   calibrated against IntCal20 (via iosacal). Genuinely non-Gaussian –
         skewed, and multi-modal wherever the curve has a plateau.
   OSL   Gaussian, because that is what a luminescence age estimate is.
 
@@ -40,7 +40,7 @@ With a uniform prior on theta,
 Note what this is NOT: it is a PRODUCT, not a sum. A summed probability density
 (SPD) pools dates that need not share an age -- it answers "when was there dating
 activity?" The product answers "when did this ONE event happen, given every date
-speaks to it?" and is therefore always sharper than any of its inputs. Panels B
+constrains it?" and is therefore always sharper than any of its inputs. Panels B
 and D of the figure are exactly that contrast.
 
 ASSUMPTIONS worth stating out loud, because the product hides them:
@@ -54,7 +54,7 @@ ASSUMPTIONS worth stating out loud, because the product hides them:
   3. The dates are independent.
   4. The prior on theta is uniform over the grid.
 
-Written for a synthetic demo dataset; the machinery is general.
+Written for a synthetic demo dataset; the code is general.
 """
 
 import numpy as np
@@ -187,10 +187,10 @@ def joint_posterior(df, grid=GRID):
     """Full Bayesian posterior for the event age, plus the pieces that build it.
 
     Returns a dict of densities/curves on `grid`:
-      s_older      product of S_i  — the older-limiting constraint (0-1)
-      f_younger    product of F_j  — the younger-limiting constraint (0-1)
+      s_older      product of S_i  – the older-limiting constraint (0-1)
+      f_younger    product of F_j  – the younger-limiting constraint (0-1)
       bracket      s_older * f_younger, normalised: the answer from the limiting
-                   14C ALONE (a broad plateau — the classic bracket)
+                   14C ALONE (a broad plateau – the classic bracket)
       event_only   combined OSL likelihood alone
       posterior    bracket-constraint * event likelihood, normalised: everything
     """
@@ -200,8 +200,8 @@ def joint_posterior(df, grid=GRID):
     f_younger = constraint_younger(list(by["younger_limiting"]["cdf"]), grid)
     constraint = s_older * f_younger
 
-    # An inverted bracket — something below the bed dating younger than something
-    # above it — leaves no age the limiting dates permit. Say so; the alternative
+    # An inverted bracket – something below the bed dating younger than something
+    # above it – leaves no age the limiting dates permit. Say so; the alternative
     # is a division-by-zero several frames deeper, which reads as a coding error
     # rather than as the geological contradiction it actually is.
     if not np.any(constraint > 0):
@@ -232,12 +232,12 @@ def joint_posterior(df, grid=GRID):
 def hpd_intervals(pdf, level=0.954, grid=GRID):
     """Highest-posterior-density region at `level`, as a list of (lo, hi) ages.
 
-    Returns more than one interval when the density is multi-modal — which
+    Returns more than one interval when the density is multi-modal – which
     calibrated 14C often is. That is the honest answer; do not collapse it.
 
     The region is defined by a density THRESHOLD, {t : p(t) >= c}, rather than by
     walking a sorted cumulative sum. The two agree wherever p is strictly ordered,
-    but on a plateau — exactly what a 14C bracket alone produces — the walk breaks
+    but on a plateau – exactly what a 14C bracket alone produces – the walk breaks
     ties arbitrarily and shatters the interval into slivers, while the threshold
     admits all tied cells at once and keeps the region contiguous.
     """
@@ -275,7 +275,7 @@ def format_hpd(intervals, ka=True, envelope=False):
     By default every disjoint sub-interval is listed: a calibrated 14C HPD really
     is ragged wherever the curve wiggles, and collapsing that silently overstates
     what the date says. Pass envelope=True for the outer bounds only, where space
-    forces it (figure annotations) — and say so in the caption.
+    forces it (figure annotations) – and say so in the caption.
     """
     scale, unit = (1000.0, " ka") if ka else (1.0, " cal BP")
     if envelope:

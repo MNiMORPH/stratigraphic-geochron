@@ -1,5 +1,5 @@
 """
-test_agedist.py — checks on the age-distribution machinery.
+test_agedist.py – checks on the age-distribution code.
 
 Run either way:
     python test_agedist.py        # plain asserts, no test runner needed
@@ -9,7 +9,7 @@ The two that matter most are test_older_limiting_date_cuts_the_OLD_tail and
 test_younger_limiting_date_cuts_the_YOUNG_tail. Everything else here is
 arithmetic hygiene; those two check the DIRECTION of the limiting-age
 constraints, which is the one thing in this code that is easy to get backwards
-and impossible to spot by eye once it is wrong — a sign flip still produces a
+and impossible to spot by eye once it is wrong – a sign flip still produces a
 smooth, plausible-looking posterior, just centred on the wrong side of the
 bracket.
 """
@@ -66,7 +66,7 @@ def test_summed_is_not_the_same_as_combined():
 
     The joint of two Gaussians has 1/s^2 = 1/s1^2 + 1/s2^2, so its 95.4% width is
     a number we can derive rather than guess: 4/sqrt(1/s1^2 + 1/s2^2). Pooling the
-    same two dates instead of multiplying them must give a wider answer — that
+    same two dates instead of multiplying them must give a wider answer – that
     gap is the whole difference between panels B and D of the figure.
     """
     s1, s2 = 850.0, 950.0
@@ -79,7 +79,7 @@ def test_summed_is_not_the_same_as_combined():
 
 
 def test_older_limiting_date_cuts_the_OLD_tail():
-    """A date BELOW the bed forbids ages older than it — and nothing else.
+    """A date BELOW the bed forbids ages older than it – and nothing else.
 
     Bites if the constraint is inverted: a flipped sign would cut the YOUNG tail,
     pushing the posterior older instead of younger.
@@ -98,7 +98,7 @@ def test_older_limiting_date_cuts_the_OLD_tail():
 
 
 def test_younger_limiting_date_cuts_the_YOUNG_tail():
-    """A date ABOVE the bed forbids ages younger than it — the mirror image."""
+    """A date ABOVE the bed forbids ages younger than it – the mirror image."""
     cutoff = 10000.0
     tight = ad.cumulative(ad.gaussian_pdf(cutoff, 20))
     f = ad.constraint_younger([tight])
@@ -115,7 +115,7 @@ def test_posterior_is_inside_the_bracket_and_no_wider_than_the_event_dates():
     """End to end on the demo data.
 
     The joint posterior must (a) sit between the limiting ages and (b) be at
-    least as tight as the OSL alone — adding true constraints can only ever
+    least as tight as the OSL alone – adding true constraints can only ever
     remove probability, never add it.
     """
     df = ad.load_dates("synthetic_ages.csv")
