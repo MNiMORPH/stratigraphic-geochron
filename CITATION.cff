@@ -1,0 +1,54 @@
+cff-version: 1.2.0
+title: >-
+  stratigraphic-geochron: joint posterior ages for stratigraphically
+  bracketed events
+message: >-
+  If you use this software, please cite it as below. Please also cite the
+  calibration curve and the calibration library listed under references.
+type: software
+authors:
+  - given-names: Andrew D.
+    family-names: Wickert
+    orcid: "https://orcid.org/0000-0002-9545-3365"
+abstract: >-
+  Combines the three kinds of geochronological constraint on a stratigraphic
+  event — dates below the bed, which bound it as younger; dates above, which
+  bound it as older; and dates on the bed itself — into a single Bayesian
+  posterior. Limiting dates enter as survival and cumulative functions and
+  dates on the bed as likelihoods, so the result is a product rather than a
+  summed probability density. Radiocarbon ages are calibrated against IntCal20
+  and luminescence ages treated as Gaussians, all on a shared calendar-age
+  grid. Ships with a synthetic demonstration dataset and a four-panel figure
+  that puts time on the vertical axis, so the plot reads like a core.
+repository-code: "https://github.com/MNiMORPH/stratigraphic-geochron"
+license: GPL-3.0-only
+keywords:
+  - geochronology
+  - radiocarbon calibration
+  - IntCal20
+  - luminescence dating
+  - Bayesian age model
+  - stratigraphy
+  - terminus post quem
+references:
+  - type: article
+    authors:
+      - family-names: Reimer
+        given-names: Paula J.
+    title: >-
+      The IntCal20 Northern Hemisphere radiocarbon age calibration curve
+      (0-55 cal kBP)
+    journal: Radiocarbon
+    volume: "62"
+    year: 2020
+    doi: 10.1017/RDC.2020.41
+    notes: >-
+      Reimer et al.; the full author list is given in the curve file shipped
+      with iosacal. Used here for all radiocarbon calibration.
+  - type: software
+    authors:
+      - family-names: Costa
+        given-names: Stefano
+    title: "IoSACal: open source radiocarbon calibration"
+    repository-code: "https://codeberg.org/steko/iosacal"
+    notes: Performs the IntCal20 calibration called by agedist.calibrate_14c.
