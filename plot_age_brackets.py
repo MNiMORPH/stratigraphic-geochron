@@ -276,7 +276,11 @@ def build_figure(csv_path=DATA_CSV, out_stem=OUT_STEM):
 
     fig.tight_layout(rect=(0.006, 0.055, 0.998, 0.905))
     for ext in ("png", "pdf"):
-        fig.savefig(f"{out_stem}.{ext}", dpi=200)
+        # Suppress the PDF creation timestamp: the rendered figures are checked
+        # in, and a stamped date makes every rerun show up as a modified file
+        # whose content is byte-identical apart from the date.
+        meta = {"CreationDate": None} if ext == "pdf" else None
+        fig.savefig(f"{out_stem}.{ext}", dpi=200, metadata=meta)
         print(f"wrote {out_stem}.{ext}")
     plt.close(fig)
     return df, J
