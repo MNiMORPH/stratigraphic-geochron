@@ -71,7 +71,9 @@ def test_summed_is_not_the_same_as_combined():
     """
     s1, s2 = 850.0, 950.0
     pdfs = [ad.gaussian_pdf(11850, s1), ad.gaussian_pdf(12250, s2)]
-    width = lambda d: sum(hi - lo for lo, hi in ad.hpd_intervals(d, 0.954))
+    def width(density):
+        """Total span of the 95.4% region, adding up any disjoint pieces."""
+        return sum(hi - lo for lo, hi in ad.hpd_intervals(density, 0.954))
 
     expected = 4 / np.sqrt(1 / s1**2 + 1 / s2**2)
     assert abs(width(ad.combined_likelihood(pdfs)) - expected) < 20, expected
@@ -171,6 +173,9 @@ def test_inverted_bracket_is_refused_by_name():
 
 
 if __name__ == "__main__":
+    # globals() is every name defined in this file. Picking out the ones that
+    # start with "test_" and calling them is, in miniature, what pytest does --
+    # so this file runs with or without a test runner installed.
     for name, fn in sorted(globals().items()):
         if name.startswith("test_") and callable(fn):
             fn()
