@@ -61,8 +61,12 @@ import numpy as np
 import pandas as pd
 from scipy.stats import norm
 
-# numpy >= 2 renamed trapz -> trapezoid; support both so the folder is portable.
-_trapz = getattr(np, "trapezoid", None) or np.trapz
+# numpy 2 renamed trapz to trapezoid. Use whichever this installation has, so
+# the code runs on both versions.
+if hasattr(np, "trapezoid"):
+    _trapz = np.trapezoid
+else:
+    _trapz = np.trapz
 
 # ── The common calendar-age grid ─────────────────────────────────────────────
 # 1-yr resolution, wide enough that every PDF decays to zero inside it and the
@@ -108,9 +112,20 @@ def normalise(density, grid=GRID):
 
 
 def cumulative(pdf, grid=GRID):
-    """CDF of a density on the grid, increasing with age. cdf[0]=0, cdf[-1]=1."""
-    cdf = np.concatenate([[0.0], np.cumsum(0.5 * (pdf[1:] + pdf[:-1]) * np.diff(grid))])
-    return cdf / cdf[-1]
+    """Cumulative probability of a density, running from young to old.
+
+    Element i is the probability that the true age is grid[i] or younger, so the
+    result starts at 0 and ends at 1.
+
+    The integral uses the trapezoid rule: over one step of the grid, the area
+    under the curve is the average of the two end heights times the step width.
+    np.cumsum then keeps a running total of those areas.
+    """
+    step_width = np.diff(grid)                        # width of each grid step
+    mean_height = 0.5 * (pdf[1:] + pdf[:-1])          # average density across it
+    area = step_width * mean_height                   # probability in that step
+    cdf = np.concatenate([[0.0], np.cumsum(area)])    # nothing below the first age
+    return cdf / cdf[-1]                              # scale so it ends at exactly 1
 
 
 def load_dates(csv_path, grid=GRID):
@@ -148,10 +163,11 @@ def constraint_older(cdfs, grid=GRID):
     Product of S_i(theta) = 1 - CDF_i(theta). Goes 1 -> 0 with increasing age:
     the event cannot be older than the material beneath it.
     """
-    out = np.ones_like(grid)
+    # Start at "everything is allowed" and multiply in one date at a time.
+    permitted = np.ones_like(grid)
     for cdf in cdfs:
-        out = out * (1.0 - cdf)
-    return out
+        permitted = permitted * (1.0 - cdf)
+    return permitted
 
 
 def constraint_younger(cdfs, grid=GRID):
@@ -160,10 +176,11 @@ def constraint_younger(cdfs, grid=GRID):
     Product of F_j(theta) = CDF_j(theta). Goes 0 -> 1 with increasing age:
     the event cannot be younger than the material above it.
     """
-    out = np.ones_like(grid)
+    # Start at "everything is allowed" and multiply in one date at a time.
+    permitted = np.ones_like(grid)
     for cdf in cdfs:
-        out = out * cdf
-    return out
+        permitted = permitted * cdf
+    return permitted
 
 
 def combined_likelihood(pdfs, grid=GRID):
@@ -172,10 +189,10 @@ def combined_likelihood(pdfs, grid=GRID):
     This is the luminescence equivalent of OxCal's R_Combine: it assumes a single
     true age and no unmodelled scatter (see module docstring, assumption 1).
     """
-    out = np.ones_like(grid)
+    product = np.ones_like(grid)
     for pdf in pdfs:
-        out = out * pdf
-    return normalise(out, grid)
+        product = product * pdf
+    return normalise(product, grid)
 
 
 def summed_density(pdfs, grid=GRID):
@@ -194,6 +211,7 @@ def joint_posterior(df, grid=GRID):
       event_only   combined OSL likelihood alone
       posterior    bracket-constraint * event likelihood, normalised: everything
     """
+    # Split the table into three smaller tables, one per category.
     by = {c: df[df["category"] == c] for c in CATEGORIES}
 
     s_older = constraint_older(list(by["older_limiting"]["cdf"]), grid)
@@ -241,21 +259,40 @@ def hpd_intervals(pdf, level=0.954, grid=GRID):
     ties arbitrarily and shatters the interval into slivers, while the threshold
     admits all tied cells at once and keeps the region contiguous.
     """
+    # Step 1: how much probability sits in each cell of the grid.
     mass = pdf * np.gradient(grid)
-    order = np.argsort(mass)[::-1]
-    ranked = mass[order]
+
+    # Step 2: rank the cells most-likely-first and walk down the ranking, adding
+    # up probability, until the cells collected hold `level` of the total. The
+    # density where we stop is the threshold c.
+    ranked = np.sort(mass)[::-1]
     reached = np.flatnonzero(np.cumsum(ranked) >= level * mass.sum())
-    # If rounding keeps the cumulative sum just under `level`, take the whole
+    # If rounding leaves the running total just under `level`, take the whole
     # distribution rather than silently returning an empty region.
     cutoff = ranked[reached[0]] if reached.size else ranked[-1]
-    keep = mass >= cutoff
 
-    edges = np.flatnonzero(np.diff(np.r_[False, keep, False]))
-    return [(grid[a], grid[b - 1]) for a, b in edges.reshape(-1, 2)]
+    # Step 3: keep every cell at or above the threshold. `keep` is a mask -- an
+    # array of True/False, one per grid point.
+    mask = mass >= cutoff
+
+    # Step 4: turn the mask into (start, end) pairs. Padding with False at both
+    # ends makes a run that touches an edge still count as switching on and off;
+    # np.diff is then non-zero exactly at the switches, which alternate
+    # start, end, start, end...
+    padded = np.concatenate([[False], mask, [False]])
+    switches = np.flatnonzero(np.diff(padded))
+    starts, ends = switches[0::2], switches[1::2]
+    return [(grid[start], grid[end - 1]) for start, end in zip(starts, ends)]
 
 
 def quantiles(pdf, probs=(0.025, 0.5, 0.975), grid=GRID):
-    """Ages at the given cumulative probabilities."""
+    """Ages at the given cumulative probabilities. quantiles(pdf, (0.5,)) is the median.
+
+    This reads the CDF backwards. np.interp(x_wanted, x_known, y_known) looks up
+    y at a given x; handing it the cumulative probabilities as the x axis and the
+    ages as the y axis turns "what fraction of the probability lies below this
+    age?" into "which age has this fraction below it?".
+    """
     return np.interp(probs, cumulative(pdf, grid), grid)
 
 
