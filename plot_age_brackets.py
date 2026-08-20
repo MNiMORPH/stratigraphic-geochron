@@ -49,6 +49,12 @@ LABEL = {
 
 AGE_TOP, AGE_BOTTOM = 9.0, 14.9      # ka; top of the page is young
 
+# matplotlib line styles, written as (offset, (dash_length, gap_length)) in
+# points. Naming them keeps the drawing calls readable.
+DASHED = (0, (5, 3))
+DASHED_WIDE = (0, (5, 2.5))
+DOTTED = (0, (1.2, 1.6))
+
 # Densities are plotted per thousand years so the axes carry readable numbers
 # instead of a 1e-4 offset tucked under the axis label.
 PER_KA = 1000.0
@@ -78,6 +84,9 @@ def order_dates(df):
 def _support(pdf, frac=0.01):
     """Mask of where a density is worth drawing an outline for.
 
+    Returns an array of True/False, one per grid point. Used as `values[mask]`
+    it selects just the points worth drawing.
+
     Without this the outline of a sideways violin collapses onto the slot centre
     wherever the density is negligible, and every date grows a full-height
     hairline. The default cuts at 1% of peak – for a Gaussian, about +/-3 sigma.
@@ -94,6 +103,8 @@ def panel_dates(ax, df, ka):
     age is a fat one, at a glance.
     """
     half = 0.40
+    # df.iterrows() yields (index, row) pairs; the underscore discards the index,
+    # which we do not need because enumerate is already numbering the x slots.
     for x, (_, row) in enumerate(df.iterrows()):
         col = COLOR[row["category"]]
         pdf = row["pdf"] / row["pdf"].max()
@@ -183,7 +194,7 @@ def panel_constraints(ax, J, ka):
     ax.fill_betweenx(ka, 0, both, facecolor="0.45", alpha=0.20, lw=0)
     ax.plot(J["s_older"], ka, color=COLOR["older_limiting"], lw=2.4, alpha=0.9)
     ax.plot(J["f_younger"], ka, color=COLOR["younger_limiting"], lw=2.4, alpha=0.9,
-            ls=(0, (5, 3)))
+            ls=DASHED)
     ax.plot(both, ka, color=INK, lw=1.1)
 
     ax.set_xlim(-0.03, 1.08)
@@ -194,7 +205,7 @@ def panel_constraints(ax, J, ka):
     ax.legend(handles=[
         Line2D([], [], color=COLOR["older_limiting"], lw=2.4,
                label="event younger than\ndates below it"),
-        Line2D([], [], color=COLOR["younger_limiting"], lw=2.4, ls=(0, (5, 3)),
+        Line2D([], [], color=COLOR["younger_limiting"], lw=2.4, ls=DASHED,
                label="event older than\ndates above it"),
         Patch(facecolor="0.45", alpha=0.30, edgecolor=INK, label="both at once"),
     ], loc="lower left", fontsize=7.5, frameon=False, labelspacing=0.8)
@@ -207,10 +218,10 @@ def panel_joint(ax, J, ka):
     event_only = J["event_only"] * PER_KA
     posterior = J["posterior"] * PER_KA
 
-    ax.plot(bracket, ka, color=INK_2, lw=1.3, ls=(0, (5, 2.5)))
+    ax.plot(bracket, ka, color=INK_2, lw=1.3, ls=DASHED_WIDE)
     m_event, m_post = _support(event_only), _support(posterior)
     ax.plot(event_only[m_event], ka[m_event],
-            color=COLOR["event"], lw=1.7, ls=(0, (1.2, 1.6)))
+            color=COLOR["event"], lw=1.7, ls=DOTTED)
     ax.fill_betweenx(ka, 0, posterior, facecolor=INK, alpha=0.12, lw=0)
     ax.plot(posterior[m_post], ka[m_post], color=INK, lw=2.2)
 
@@ -230,8 +241,8 @@ def panel_joint(ax, J, ka):
     ax.set_title("D   Joint posterior", loc="left", fontsize=11,
                  fontweight="bold", pad=10)
     ax.legend(handles=[
-        Line2D([], [], color=INK_2, lw=1.3, ls=(0, (5, 2.5)), label="$^{14}$C bracket alone"),
-        Line2D([], [], color=COLOR["event"], lw=1.7, ls=(0, (1.2, 1.6)), label="OSL combined"),
+        Line2D([], [], color=INK_2, lw=1.3, ls=DASHED_WIDE, label="$^{14}$C bracket alone"),
+        Line2D([], [], color=COLOR["event"], lw=1.7, ls=DOTTED, label="OSL combined"),
         Line2D([], [], color=INK, lw=2.2, label="joint posterior"),
         Patch(facecolor=INK, alpha=0.38, label="68.3% / 95.4% HPD"),
     ], loc="lower right", fontsize=7.5, frameon=False)
